@@ -1,0 +1,52 @@
+# FK Steering — default binder design configuration
+# Matches optimal parameters from Table 2 / Methods §"Campaigns" in the paper:
+# Hartman et al. (2025) arXiv:2511.09216
+
+# ──────────────────────────────────────────────
+# Target specification
+# ──────────────────────────────────────────────
+target:
+  pdb: "targets/4HSC.pdb"         # Streptolysin O
+  hotspot_residues: ["A110", "A115", "A117"]
+  binder_length: 24
+
+# ──────────────────────────────────────────────
+# FK steering
+# ──────────────────────────────────────────────
+fk:
+  n_particles: 50            # N — ensemble size (Fig. 3d: optimal ≈ 50)
+  temperature: 10.0          # τ  (Fig. 3d: optimal ≈ 10)
+  resample_interval: 2       # Δt (Fig. 3d: optimal ≈ 2)
+  guidance_start: 20         # t_start (Fig. 3d: optimal ≈ 20)
+  potential: "immediate"     # best concordance in Boltz-2 eval (Fig. 5)
+  n_reward_samples: 5        # repeated MPNN/relax evals per reward (Fig. 4b)
+  reward_aggregation: "mean"
+  n_timesteps: 50
+
+# ──────────────────────────────────────────────
+# Reward
+# ──────────────────────────────────────────────
+reward:
+  type: "binding"   # interface ΔG
+  # charge reward options (unused when type=binding):
+  target_charge: 0.0
+  # secondary structure options (unused when type=binding):
+  target_helix: 0.0
+  target_sheet: 0.0
+  target_loop:  1.0
+
+# ──────────────────────────────────────────────
+# Model
+# ──────────────────────────────────────────────
+model:
+  rfdiffusion_path: ""   # override with RFDIFFUSION_PATH env var or absolute path
+  checkpoint: "models/BFF_ckpt.pt"   # beta-sheet checkpoint (used in paper)
+  device: "cuda"
+
+# ──────────────────────────────────────────────
+# Output
+# ──────────────────────────────────────────────
+output:
+  directory: "results/SLO/"
+  n_top_designs: 10
+  seed: 42
